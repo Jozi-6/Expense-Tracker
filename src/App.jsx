@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react'
 import jsPDF from 'jspdf'
-import { Download } from 'lucide-react'
+import { Download, Sun, Moon } from 'lucide-react'
 import Dashboard from './components/Dashboard'
 import SalesTracker from './components/SalesTracker'
 import ExpenseTracker from './components/ExpenseTracker'
 
 function App() {
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('theme')
+    if (saved) return saved
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
   const [sales, setSales] = useState(() => {
     const saved = localStorage.getItem('sales')
     return saved ? JSON.parse(saved) : []
@@ -16,12 +21,25 @@ function App() {
   })
 
   useEffect(() => {
+    localStorage.setItem('theme', theme)
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [theme])
+
+  useEffect(() => {
     localStorage.setItem('sales', JSON.stringify(sales))
   }, [sales])
 
   useEffect(() => {
     localStorage.setItem('expenses', JSON.stringify(expenses))
   }, [expenses])
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+  }
 
   const totalSales = sales.reduce((sum, sale) => sum + sale.amount, 0)
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0)
@@ -99,17 +117,25 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Financial Tracker</h1>
-          <button
-            onClick={downloadPDF}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-          >
-            <Download className="w-5 h-5" />
-            Download PDF
-          </button>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Financial Tracker</h1>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button
+              onClick={downloadPDF}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+            >
+              <Download className="w-5 h-5" />
+              Download PDF
+            </button>
+          </div>
         </div>
 
         <Dashboard
