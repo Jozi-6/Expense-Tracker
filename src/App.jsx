@@ -11,6 +11,7 @@ function App() {
     if (saved) return saved
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
+  const [activeTab, setActiveTab] = useState('income')
   const [sales, setSales] = useState(() => {
     const saved = localStorage.getItem('sales')
     return saved ? JSON.parse(saved) : []
@@ -144,17 +145,43 @@ function App() {
           netProfit={netProfit}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-          <SalesTracker
-            sales={sales}
-            onAddSale={addSale}
-            onDeleteSale={deleteSale}
-          />
-          <ExpenseTracker
-            expenses={expenses}
-            onAddExpense={addExpense}
-            onDeleteExpense={deleteExpense}
-          />
+        <div className="mt-8">
+          <div className="flex gap-2 border-b border-gray-200 dark:border-slate-700 mb-6">
+            <button
+              onClick={() => setActiveTab('income')}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === 'income'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              Income
+            </button>
+            <button
+              onClick={() => setActiveTab('expenses')}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === 'expenses'
+                  ? 'text-red-600 dark:text-red-400 border-b-2 border-red-600 dark:border-red-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              Expenses
+            </button>
+          </div>
+
+          {activeTab === 'income' ? (
+            <SalesTracker
+              sales={sales}
+              onAddSale={addSale}
+              onDeleteSale={deleteSale}
+            />
+          ) : (
+            <ExpenseTracker
+              expenses={expenses}
+              onAddExpense={addExpense}
+              onDeleteExpense={deleteExpense}
+            />
+          )}
         </div>
       </div>
     </div>
